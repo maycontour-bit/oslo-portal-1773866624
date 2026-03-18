@@ -2,211 +2,137 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oslo Partners | Portal do Sócio v3.5</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Oslo Partners | Portal v4.0</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #08121a; color: #FFFFFF; }
-        .oslo-navy { background-color: #193D5A; }
-        .oslo-gold { color: #D4AF37; }
-        .oslo-gold-bg { background-color: #D4AF37; }
-        .glass { background: rgba(25, 61, 90, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-dark { background-color: #0d1e2b; border: 1px solid #193D5A; color: white; border-radius: 8px; padding: 12px; width: 100%; outline: none; }
-        .input-dark:focus { border-color: #D4AF37; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .product-btn { transition: all 0.2s; cursor: pointer; }
-        .product-btn.active { background-color: #D4AF37; color: #000; border-color: #D4AF37; }
+        * { box-sizing: border-box; }
+        body { background: #08121a; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 280px; background: #060c12; border-right: 1px solid #193D5A; padding: 30px; flex-shrink: 0; display: flex; flexDirection: column; }
+        .main { flex-grow: 1; padding: 50px; overflow-y: auto; }
+        .gold { color: #D4AF37; }
+        .gold-bg { background: #D4AF37; color: #000; }
+        .card { background: #122A42; border: 1px solid #193D5A; padding: 25px; border-radius: 15px; margin-bottom: 25px; }
+        .res-card { background: #193D5A; border: 2px solid #D4AF37; padding: 35px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; text-align: left; transition: 0.2s; background: transparent; color: #fff; }
+        .btn:hover { background: rgba(25, 61, 90, 0.5); }
+        .btn-active { background: #D4AF37 !important; color: #000 !important; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; }
+        .prod-btn { padding: 10px; border: 1px solid #193D5A; border-radius: 8px; background: #0d1e2b; color: #fff; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .prod-active { background: #D4AF37; color: #000; border-color: #D4AF37; }
+        input { width: 100%; background: #08121a; border: 1px solid #193D5A; color: #fff; padding: 15px; border-radius: 8px; font-size: 20px; font-weight: bold; outline: none; margin-top: 10px; }
+        input:focus { border-color: #D4AF37; }
+        label { font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #D4AF37; text-transform: uppercase; }
+        .hidden { display: none; }
+        h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row overflow-hidden">
+<body>
 
-    <!-- SIDEBAR -->
-    <aside class="w-full md:w-72 bg-[#060c12] border-r border-[#193D5A] p-8 flex flex-col shrink-0">
-        <div class="mb-12">
-            <h1 class="text-3xl font-black tracking-tighter">OSLO <span class="oslo-gold">PARTNERS</span></h1>
-            <p class="text-[10px] uppercase tracking-[4px] oslo-gold opacity-60">Elite Management</p>
+    <div class="sidebar">
+        <h1 style="margin-bottom: 50px;">OSLO <span class="gold">PARTNERS</span></h1>
+        <button id="nav-pj1" class="btn btn-active" onclick="showTab('pj1')">📈 INVESTIMENTOS</button>
+        <button id="nav-pj2" class="btn" onclick="showTab('pj2')">💰 MULTI-PRODUTOS</button>
+        <div style="margin-top: auto; font-size: 10px; opacity: 0.3;">MAYCON VALENTE | CHAIRMAN</div>
+    </div>
+
+    <div class="main">
+        <div id="pj1-content">
+            <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 40px;">Simulador de Recorrência</h2>
+            <div style="display: flex; gap: 30px;">
+                <div class="card" style="flex: 1;">
+                    <label>Captação Líquida (NNM) R$</label>
+                    <input type="number" id="nnm" value="10000000" oninput="calc1()">
+                    <br><br>
+                    <label>ROA da Carteira (% a.a.)</label>
+                    <input type="number" id="roa" value="0.70" step="0.05" oninput="calc1()">
+                </div>
+                <div class="res-card" style="flex: 1;">
+                    <p style="font-size: 12px; font-weight: bold; opacity: 0.7;">SUA RECEITA MENSAL EST.</p>
+                    <h1 id="res1" class="gold" style="font-size: 50px; margin: 20px 0;">R$ 23.333,33</h1>
+                    <p style="font-size: 9px; opacity: 0.4;">Cálculo líquido (Pós-Imposto e Split)</p>
+                </div>
+            </div>
         </div>
-        <nav class="space-y-4 flex-1">
-            <button onclick="switchTab('pj1')" id="nav-pj1" class="w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest oslo-gold-bg text-black shadow-lg">📈 INVESTIMENTOS</button>
-            <button onclick="switchTab('pj2')" id="nav-pj2" class="w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest hover:bg-blue-900/20">💰 MULTI-PRODUTOS</button>
-            <button onclick="switchTab('finder')" id="nav-finder" class="w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest hover:bg-blue-900/20">🤝 MENU FINDER</button>
-        </nav>
-        <div class="pt-6 border-t border-blue-900/30 text-[10px] opacity-40 uppercase tracking-widest">
-            Socio: Maycon Valente
+
+        <div id="pj2-content" class="hidden">
+            <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 30px;">Multi-Produtos</h2>
+            <div id="prod-grid" class="grid"></div>
+            <div style="display: flex; gap: 30px;">
+                <div class="card" style="flex: 1;">
+                    <label id="unit-label">VALOR DA OPERAÇÃO R$</label>
+                    <input type="number" id="val" value="1000000" oninput="calc2()">
+                </div>
+                <div class="res-card gold-bg" style="flex: 1; border: none;">
+                    <p style="font-size: 12px; font-weight: bold; opacity: 0.6;">SEU GANHO LÍQUIDO</p>
+                    <h1 id="res2" style="font-size: 56px; margin: 20px 0;">R$ 0,00</h1>
+                    <p style="font-size: 10px; font-weight: bold;">PAGAMENTO UPFRONT</p>
+                </div>
+            </div>
         </div>
-    </aside>
-
-    <!-- CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto p-6 md:p-12">
-
-        <!-- PJ1: INVESTIMENTOS -->
-        <section id="tab-pj1" class="tab-content active max-w-4xl space-y-10">
-            <h2 class="text-4xl font-black mb-2">Simulador de Recorrência</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="glass p-8 rounded-3xl space-y-6">
-                    <div>
-                        <label class="block text-[10px] font-bold oslo-gold mb-2 uppercase">Captação Líquida (NNM) R$</label>
-                        <input type="number" id="nnm" value="10000000" oninput="calcPJ1()" class="input-dark text-2xl font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold oslo-gold mb-2 uppercase">ROA da Carteira (% a.a.)</label>
-                        <input type="number" id="roa" value="0.70" step="0.05" oninput="calcPJ1()" class="input-dark text-2xl font-bold">
-                    </div>
-                </div>
-                <div class="oslo-navy p-10 rounded-3xl border-2 border-[#D4AF37] flex flex-col justify-center text-center">
-                    <p class="text-xs font-bold uppercase tracking-widest opacity-60 mb-4">Recorrência Mensal Est.</p>
-                    <div id="pj1-res" class="text-5xl font-black oslo-gold">R$ 23.333,33</div>
-                    <p class="text-[9px] mt-8 opacity-40 uppercase italic">*Pós-Imposto (20%) e Repasse Oslo (50%)</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- PJ2: MULTI-PRODUTOS -->
-        <section id="tab-pj2" class="tab-content space-y-8">
-            <h2 class="text-3xl font-black">Ecossistema 12 Verticais</h2>
-            <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                <!-- Buttons injected via JS -->
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-                <div class="glass p-8 rounded-3xl space-y-4">
-                    <div id="input-box">
-                        <label id="label-input" class="block text-[10px] font-bold oslo-gold mb-2">VALOR DA OPERAÇÃO R$</label>
-                        <input type="number" id="pj2-val" value="1000000" oninput="calcPJ2()" class="input-dark text-3xl font-bold">
-                    </div>
-                    <div id="ptax-box" class="hidden">
-                        <label class="block text-[10px] font-bold oslo-gold mb-2">CÂMBIO (USD/BRL)</label>
-                        <input type="number" id="pj2-ptax" value="5.20" oninput="calcPJ2()" class="input-dark text-xl font-bold">
-                    </div>
-                    <div class="pt-4 border-t border-white/10 text-[10px] opacity-50 flex justify-between">
-                        <span>Repasse Bruto: <b id="info-brute">0%</b></span>
-                        <span>Mesa: <b id="info-mesa">0%</b></span>
-                    </div>
-                </div>
-                <div class="oslo-gold-bg p-8 rounded-3xl flex flex-col justify-center text-black">
-                    <p class="text-xs font-bold uppercase opacity-60">Seu Ganho Líquido</p>
-                    <div id="pj2-res" class="text-5xl font-black my-4">R$ 0,00</div>
-                    <button class="bg-black text-white text-[10px] font-bold p-3 rounded-lg uppercase tracking-widest hover:opacity-80">Gerar Memorando</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- FINDER -->
-        <section id="tab-finder" class="tab-content max-w-xl mx-auto py-10 text-center">
-            <div class="glass p-12 rounded-[40px] border-2 border-dashed border-[#D4AF37]/20">
-                <h2 class="text-2xl font-black mb-6">Gestão de Finder</h2>
-                <button id="finder-btn" onclick="toggleFinder()" class="px-10 py-4 rounded-full font-black text-xs tracking-widest bg-gray-800 text-gray-500">ATIVAR FINDER</button>
-                <div id="finder-ui" class="hidden mt-8">
-                    <label class="block text-[10px] font-bold oslo-gold mb-2 uppercase">Percentual do Finder (%)</label>
-                    <input type="number" id="finder-pct" value="20" oninput="calcPJ2()" class="input-dark text-center text-2xl font-bold">
-                </div>
-            </div>
-        </section>
-
-    </main>
+    </div>
 
     <script>
         const rules = {
-            'af': { n: 'American Fidelity', t: 'p', b: 70, m: 35, a: 35, e: 30, u: 'Prêmio US$' },
-            'finep': { n: 'Captação (Finep)', t: 'v', b: 3, m: 10, a: 40, e: 50, u: 'Deal R$' },
-            'ma': { n: 'M&A (Deal)', t: 'd', b: 0.8, m: 30, a: 20, e: 50, u: 'Deal R$' },
-            'mkt': { n: 'Mercado Capitais', t: 'v', b: 2, m: 30, a: 20, e: 50, u: 'Deal R$' },
-            'he': { n: 'Home Equity', t: 'v', b: 3.5, m: 20, a: 40, e: 40, u: 'Crédito R$' },
-            'trust': { n: 'Trust Offshore', t: 'p', b: 45, m: 20, a: 40, e: 40, u: 'Aporte R$' },
-            'spec': { n: 'Special Situations', t: 'v', b: 15, m: 13.3, a: 53.3, e: 33.3, u: 'Volume R$' },
-            'cons': { n: 'Consórcios', t: 'v', b: 2, m: 35, a: 35, e: 30, u: 'Carta R$' },
-            'seg': { n: 'Seguros Nacionais', t: 'p', b: 40, m: 35, a: 35, e: 30, u: 'Prêmio R$' },
-            'fx': { n: 'Câmbio (Spread)', t: 'v', b: 1, m: 10, a: 35, e: 55, u: 'Volume R$' },
-            'imob': { n: 'Financ. Imob.', t: 'v', b: 1, m: 0, a: 50, e: 50, u: 'Financ. R$' },
-            'gest': { n: 'Gestão Patrim.', t: 'v', b: 1, m: 0, a: 50, e: 50, u: 'Operação R$' }
+            'af': { n: 'American Fidelity', b: 70, m: 35, a: 35, e: 30, u: 'Prêmio US$' },
+            'finep': { n: 'Captação (Finep)', b: 3, m: 10, a: 40, e: 50, u: 'Deal R$' },
+            'ma': { n: 'M&A (Deal)', b: 0.8, m: 30, a: 20, e: 50, u: 'Deal R$' },
+            'mkt': { n: 'Mercado Capitais', b: 2, m: 30, a: 20, e: 50, u: 'Deal R$' },
+            'he': { n: 'Home Equity', b: 3.5, m: 20, a: 40, e: 40, u: 'Crédito R$' },
+            'trust': { n: 'Trust Offshore', b: 45, m: 20, a: 40, e: 40, u: 'Aporte R$' },
+            'spec': { n: 'Special Situations', b: 15, m: 13.3, a: 53.3, e: 33.3, u: 'Volume R$' },
+            'cons': { n: 'Consórcios', b: 2, m: 35, a: 35, e: 30, u: 'Carta R$' },
+            'seg': { n: 'Seguros Nacionais', b: 40, m: 35, a: 35, e: 30, u: 'Prêmio R$' },
+            'fx': { n: 'Câmbio (Spread)', b: 1, m: 10, a: 35, e: 55, u: 'Volume R$' },
+            'imob': { n: 'Financ. Imob.', b: 1, m: 0, a: 50, e: 50, u: 'Financ. R$' },
+            'gest': { n: 'Gestão Patrim.', b: 1, m: 0, a: 50, e: 50, u: 'Operação R$' }
         };
 
-        let activeId = 'af';
-        let finderOn = false;
+        let active = 'af';
 
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-'+id).classList.add('active');
-            document.querySelectorAll('nav button').forEach(b => {
-                b.classList.remove('oslo-gold-bg', 'text-black', 'shadow-lg');
-                b.classList.add('hover:bg-blue-900/20', 'text-white');
-            });
-            const activeNav = document.getElementById('nav-'+id);
-            activeNav.classList.add('oslo-gold-bg', 'text-black', 'shadow-lg');
-            activeNav.classList.remove('hover:bg-blue-900/20', 'text-white');
+        function showTab(tab) {
+            document.getElementById('pj1-content').classList.toggle('hidden', tab !== 'pj1');
+            document.getElementById('pj2-content').classList.toggle('hidden', tab !== 'pj2');
+            document.getElementById('nav-pj1').classList.toggle('btn-active', tab === 'pj1');
+            document.getElementById('nav-pj2').classList.toggle('btn-active', tab === 'pj2');
         }
 
-        function buildGrid() {
-            const g = document.getElementById('product-grid');
-            Object.keys(rules).forEach(id => {
+        function build() {
+            const grid = document.getElementById('prod-grid');
+            for (let id in rules) {
                 const b = document.createElement('button');
-                b.id = 'btn-' + id;
+                b.className = 'prod-btn';
+                if(id === active) b.className += ' prod-active';
                 b.innerText = rules[id].n;
-                b.className = 'product-btn glass p-3 rounded-lg text-[9px] font-bold uppercase tracking-tighter border-blue-900/20';
-                if(id === activeId) b.classList.add('active');
                 b.onclick = () => {
-                    activeId = id;
-                    document.querySelectorAll('.product-btn').forEach(x => x.classList.remove('active'));
-                    b.classList.add('active');
-                    updateUI();
+                    active = id;
+                    document.querySelectorAll('.prod-btn').forEach(x => x.className = 'prod-btn');
+                    b.className = 'prod-btn prod-active';
+                    document.getElementById('unit-label').innerText = rules[id].u;
+                    calc2();
                 };
-                g.appendChild(b);
-            });
-        }
-
-        function toggleFinder() {
-            finderOn = !finderOn;
-            const b = document.getElementById('finder-btn');
-            const ui = document.getElementById('finder-ui');
-            if(finderOn) {
-                b.innerText = 'FINDER ATIVO';
-                b.classList.replace('bg-gray-800', 'oslo-gold-bg');
-                b.classList.replace('text-gray-500', 'text-black');
-                ui.classList.remove('hidden');
-            } else {
-                b.innerText = 'ATIVAR FINDER';
-                b.classList.replace('oslo-gold-bg', 'bg-gray-800');
-                b.classList.replace('text-black', 'text-gray-500');
-                ui.classList.add('hidden');
+                grid.appendChild(b);
             }
-            calcPJ2();
-        }
-
-        function updateUI() {
-            document.getElementById('label-input').innerText = rules[activeId].u;
-            if(activeId === 'af') document.getElementById('ptax-box').classList.remove('hidden');
-            else document.getElementById('ptax-box').classList.add('hidden');
-            calcPJ2();
         }
 
         const fmt = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
-        function calcPJ1() {
+        function calc1() {
             const nnm = document.getElementById('nnm').value;
             const roa = document.getElementById('roa').value;
-            const res = ((nnm * (roa/100)) * 0.8 * 0.5) / 12;
-            document.getElementById('pj1-res').innerText = fmt(res);
+            const gain = ((nnm * (roa/100)) * 0.8 * 0.5) / 12;
+            document.getElementById('res1').innerText = fmt(gain);
         }
 
-        function calcPJ2() {
-            const val = document.getElementById('pj2-val').value;
-            const ptax = document.getElementById('pj2-ptax').value;
-            const fPct = document.getElementById('finder-pct').value;
-            const r = rules[activeId];
-            let gross = (activeId === 'af') ? (val * ptax * (r.b/100)) : (val * (r.b/100));
-            const base = (gross * 0.8) * (1 - r.m/100);
-            const share = base * (r.a / (r.a + r.e));
-            const final = finderOn ? (share * (1 - fPct/100)) : share;
-            document.getElementById('pj2-res').innerText = fmt(final);
-            document.getElementById('info-brute').innerText = r.b + '%';
-            document.getElementById('info-mesa').innerText = r.m + '%';
+        function calc2() {
+            const val = document.getElementById('val').value;
+            const r = rules[active];
+            let gross = (active === 'af') ? (val * 5.2 * (r.b/100)) : (val * (r.b/100));
+            const share = (gross * 0.8) * (1 - r.m/100) * (r.a / (r.a + r.e));
+            document.getElementById('res2').innerText = fmt(share);
         }
 
-        buildGrid();
-        calcPJ1();
-        updateUI();
+        build();
+        calc1();
+        calc2();
     </script>
 </body>
 </html>
