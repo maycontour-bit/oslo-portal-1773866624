@@ -3,177 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oslo Partners | Portal do Sócio v2.5</title>
+    <title>Oslo Partners | Portal do Sócio v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #08121a; color: #FFFFFF; }
-        .oslo-gradient { background: linear-gradient(135deg, #08121a 0%, #193D5A 100%); }
+        .oslo-navy { background-color: #193D5A; }
         .oslo-gold { color: #D4AF37; }
         .oslo-gold-bg { background-color: #D4AF37; }
         .glass { background: rgba(25, 61, 90, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.1); }
         .input-dark { background-color: #08121a; border: 1px solid #193D5A; color: white; border-radius: 8px; }
-        .input-dark:focus { border-color: #D4AF37; outline: none; }
-        .btn-primary { background-color: #D4AF37; color: #000; font-weight: 800; transition: all 0.2s; }
-        .btn-primary:hover { background-color: #f1c40f; transform: translateY(-2px); }
+        .active-tab { border-bottom: 3px solid #D4AF37; color: #D4AF37; opacity: 1 !important; }
+        .product-btn.active { background-color: #D4AF37; color: #000; border-color: #D4AF37; }
     </style>
 </head>
-<body class="oslo-gradient min-h-screen">
-    <div id="root"></div>
+<body class="min-h-screen">
+    <div class="flex flex-col md:flex-row h-screen">
+        <!-- SIDEBAR -->
+        <aside class="w-full md:w-72 bg-[#060c12] border-r border-[#193D5A] p-8 flex flex-col">
+            <div class="mb-12">
+                <h1 class="text-3xl font-black tracking-tighter">OSLO <span class="oslo-gold">PARTNERS</span></h1>
+                <p class="text-[10px] uppercase tracking-[4px] oslo-gold opacity-60">Elite Management</p>
+            </div>
+            <nav class="space-y-4 flex-1">
+                <button onclick="showTab('pj1')" id="btn-pj1" class="tab-btn w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition oslo-gold-bg text-black">📈 PJ1: INVESTIMENTOS</button>
+                <button onclick="showTab('pj2')" id="btn-pj2" class="tab-btn w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition hover:bg-blue-900/20">💰 PJ2: MULTI-PRODUTOS</button>
+                <button onclick="showTab('finder')" id="btn-finder" class="tab-btn w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition hover:bg-blue-900/20">🤝 MENU FINDER</button>
+            </nav>
+            <div class="pt-6 border-t border-blue-900/30 text-[10px] opacity-40 uppercase tracking-widest">Login: Maycon Valente</div>
+        </aside>
 
-    <script type="text/javascript">
-        const { useState } = React;
-
-        const App = () => {
-            const [page, setPage] = useState('pj1');
-            const [finderActive, setFinderActive] = useState(false);
-            const [finderPct, setFinderPct] = useState(20);
-
-            // --- REGRAS BLINDADAS (Maycon) ---
-            const rules = {
-                'american_fidelity': { name: 'American Fidelity', type: 'premium', brute: 70, mesa: 35, advisor: 35, escritorio: 30, unit: 'Prêmio US$' },
-                'finep': { name: 'Captação (Finep/BNDES)', type: 'volume', brute: 3, mesa: 10, advisor: 40, escritorio: 50, unit: 'Deal R$' },
-                'm_and_a': { name: 'M&A (Deal)', type: 'deal', brute: 0.8, mesa: 30, advisor: 20, escritorio: 50, unit: 'Deal R$' },
-                'mercado_capitais': { name: 'Mercado de Capitais', type: 'volume', brute: 2, mesa: 30, advisor: 20, escritorio: 50, unit: 'Deal R$' },
-                'home_equity': { name: 'Home Equity', type: 'volume', brute: 3.5, mesa: 20, advisor: 40, escritorio: 40, unit: 'Crédito R$' },
-                'trust': { name: 'Trust Offshore', type: 'premium', brute: 45, mesa: 20, advisor: 40, escritorio: 40, unit: 'Aporte R$' },
-                'special_situations': { name: 'Special Situations', type: 'volume', brute: 15, mesa: 13.3, advisor: 53.3, escritorio: 33.3, unit: 'Volume R$' },
-                'consorcios': { name: 'Consórcios', type: 'volume', brute: 2, mesa: 35, advisor: 35, escritorio: 30, unit: 'Carta R$' },
-                'seguros_nacionais': { name: 'Seguros Nacionais', type: 'premium', brute: 40, mesa: 35, advisor: 35, escritorio: 30, unit: 'Prêmio R$' },
-                'cambio': { name: 'Câmbio (Spread)', type: 'volume', brute: 1, mesa: 10, advisor: 35, escritorio: 55, unit: 'Volume R$' },
-                'financ_imob': { name: 'Financ. Imobiliário', type: 'volume', brute: 1, mesa: 0, advisor: 50, escritorio: 50, unit: 'Financ. R$' },
-                'gestao_patrimonial': { name: 'Gestão Patrimonial', type: 'volume', brute: 1, mesa: 0, advisor: 50, escritorio: 50, unit: 'Operação R$' }
-            };
-
-            const [activeId, setActiveId] = useState('american_fidelity');
-            const [inputValue, setInputValue] = useState(1000000);
-            const [ptax, setPtax] = useState(5.20);
-            const [nnm, setNnm] = useState(10000000);
-            const [roa, setRoa] = useState(0.70);
-
-            const formatBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-
-            const calculatePJ2 = () => {
-                const p = rules[activeId];
-                let gross = (p.type === 'premium' && activeId === 'american_fidelity') ? (inputValue * ptax * (p.brute/100)) : (inputValue * (p.brute/100));
-                const postTax = gross * 0.8;
-                const netOslo = postTax * (1 - p.mesa/100);
-                const advisorBase = netOslo * (p.advisor / (p.advisor + p.escritorio));
-                const finderVal = finderActive ? (advisorBase * (finderPct/100)) : 0;
-                return { gross, postTax, netOslo, advisorFinal: advisorBase - finderVal, finderVal };
-            };
-
-            const pj1Gain = ((nnm * (roa/100)) * 0.8 * 0.5) / 12;
-            const pj2Res = calculatePJ2();
-
-            return (
-                <div class="flex flex-col md:flex-row h-screen">
-                    {/* SIDEBAR */}
-                    <div class="w-full md:w-72 bg-[#060c12] border-r border-[#193D5A] p-8 flex flex-col">
-                        <div class="mb-12">
-                            <h1 class="text-3xl font-black tracking-tighter">OSLO <span class="oslo-gold">PARTNERS</span></h1>
-                            <p class="text-[10px] uppercase tracking-[4px] oslo-gold opacity-60">Private Banking Portal</p>
+        <!-- MAIN -->
+        <main class="flex-1 overflow-y-auto p-10">
+            
+            <!-- TAB: PJ1 -->
+            <section id="tab-pj1" class="tab-content max-w-4xl space-y-10">
+                <header>
+                    <h2 class="text-4xl font-black mb-2">Simulador de Recorrência</h2>
+                    <p class="oslo-gold text-sm tracking-widest uppercase">Ativos sob Custódia (AUC)</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="glass p-8 rounded-3xl space-y-8">
+                        <div>
+                            <label class="block text-xs font-bold opacity-40 mb-4 uppercase">Captação Líquida (NNM) R$</label>
+                            <input type="number" id="pj1-nnm" value="10000000" oninput="updatePJ1()" class="input-dark w-full p-6 text-3xl font-black bg-[#08121a] border-[#193D5A] outline-none focus:border-[#D4AF37]">
                         </div>
-                        <nav class="space-y-4 flex-1">
-                            <button onClick={() => setPage('pj1')} class={`w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition ${page==='pj1' ? 'oslo-gold-bg text-black' : 'hover:bg-blue-900/20'}`}>📊 PJ1: INVESTIMENTOS</button>
-                            <button onClick={() => setPage('pj2')} class={`w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition ${page==='pj2' ? 'oslo-gold-bg text-black' : 'hover:bg-blue-900/20'}`}>💰 PJ2: MULTI-PRODUTOS</button>
-                            <button onClick={() => setPage('finder')} class={`w-full text-left p-4 rounded-xl text-xs font-bold tracking-widest transition ${page==='finder' ? 'oslo-gold-bg text-black' : 'hover:bg-blue-900/20'}`}>🤝 MENU FINDER {finderActive && '•'}</button>
-                        </nav>
-                        <div class="pt-6 border-t border-blue-900/30 text-[10px] opacity-40">LOGIN: MAYCON VALENTE</div>
+                        <div>
+                            <label class="block text-xs font-bold opacity-40 mb-4 uppercase">ROA da Carteira (% a.a.)</label>
+                            <input type="number" id="pj1-roa" value="0.70" step="0.05" oninput="updatePJ1()" class="input-dark w-full p-6 text-3xl font-black bg-[#08121a] border-[#193D5A] outline-none focus:border-[#D4AF37]">
+                        </div>
                     </div>
-
-                    {/* CONTENT */}
-                    <div class="flex-1 overflow-y-auto p-10">
-                        {page === 'pj1' && (
-                            <div class="max-w-4xl space-y-10">
-                                <div>
-                                    <h2 class="text-4xl font-black mb-2">Simulador de Recorrência</h2>
-                                    <p class="oslo-gold text-sm tracking-widest uppercase">Ativos sob Custódia (AUC)</p>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <div class="glass p-8 rounded-3xl space-y-8">
-                                        <div>
-                                            <label class="block text-xs font-bold opacity-40 mb-4 uppercase">Captação Líquida (NNM) R$</label>
-                                            <input type="number" value={nnm} onChange={e=>setNnm(e.target.value)} class="input-dark w-full p-6 text-3xl font-black" />
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold opacity-40 mb-4 uppercase">ROA da Carteira (% a.a.)</label>
-                                            <input type="number" step="0.05" value={roa} onChange={e=>setRoa(e.target.value)} class="input-dark w-full p-6 text-3xl font-black" />
-                                        </div>
-                                    </div>
-                                    <div class="bg-[#193D5A] p-10 rounded-3xl border-2 border-[#D4AF37] flex flex-col justify-center text-center shadow-2xl">
-                                        <p class="text-xs font-bold uppercase tracking-widest oslo-gold mb-4">Sua Recorrência Mensal Est.</p>
-                                        <div class="text-5xl font-black text-white">{formatBRL(pj1Gain)}</div>
-                                        <p class="text-[10px] mt-8 opacity-40">*Cálculo Líquido: ROA (-) 20% Imposto (-) 50% Oslo Partners.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {page === 'pj2' && (
-                            <div class="space-y-10">
-                                <h2 class="text-4xl font-black">Escossistema 12 Verticais</h2>
-                                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                                    {Object.keys(rules).map(id => (
-                                        <button onClick={()=>setActiveId(id)} class={`p-3 rounded-lg border text-[10px] font-bold transition uppercase tracking-tighter ${activeId===id ? 'oslo-gold-bg text-black border-[#D4AF37]' : 'glass text-white border-blue-900/30'}`}>{rules[id].name}</button>
-                                    ))}
-                                </div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10">
-                                    <div class="glass p-8 rounded-3xl space-y-6">
-                                        <div>
-                                            <label class="block text-xs font-bold opacity-40 mb-2 uppercase">{rules[activeId].unit}</label>
-                                            <input type="number" value={inputValue} onChange={e=>setInputValue(e.target.value)} class="input-dark w-full p-6 text-4xl font-black" />
-                                        </div>
-                                        {activeId === 'american_fidelity' && (
-                                            <div>
-                                                <label class="block text-xs font-bold opacity-40 mb-2 uppercase">Câmbio do Dia (BRL)</label>
-                                                <input type="number" value={ptax} onChange={e=>setPtax(e.target.value)} class="input-dark w-full p-4 text-2xl font-black" />
-                                            </div>
-                                        )}
-                                        <div class="pt-6 border-t border-blue-900/20 space-y-2 text-xs opacity-60">
-                                            <div class="flex justify-between"><span>Comissão Bruta do Ativo</span> <span>{rules[activeId].brute}%</span></div>
-                                            <div class="flex justify-between"><span>Imposto Oslo</span> <span>20%</span></div>
-                                            <div class="flex justify-between"><span>Custo de Mesa</span> <span>{rules[activeId].mesa}%</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="bg-[#D4AF37] p-10 rounded-3xl flex flex-col justify-center text-black shadow-2xl">
-                                        <p class="text-xs font-bold uppercase tracking-widest opacity-60 mb-2">Seu Ganho Líquido Estimado</p>
-                                        <div class="text-6xl font-black leading-tight">{formatBRL(pj2Res.advisorFinal)}</div>
-                                        {finderActive && <p class="text-[10px] font-bold mt-4">(-) {finderPct}% REPASSE FINDER INCLUÍDO</p>}
-                                        <button class="mt-10 bg-black text-white text-xs font-bold p-5 rounded-2xl hover:bg-gray-900 transition uppercase tracking-[3px]">Salvar Memorando PDF</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {page === 'finder' && (
-                            <div class="max-w-2xl mx-auto py-20 text-center space-y-8">
-                                <div class="glass p-12 rounded-[40px] border-2 border-dashed border-[#D4AF37]/30">
-                                    <h2 class="text-3xl font-black mb-4">Gestão de Finder</h2>
-                                    <p class="text-sm opacity-50 mb-10">Deduza automaticamente a participação de parceiros de originação externa da sua fatia societária.</p>
-                                    <div class="flex flex-col items-center gap-8">
-                                        <button onClick={()=>setFinderActive(!finderActive)} class={`px-12 py-5 rounded-full text-sm font-black tracking-widest transition-all ${finderActive ? 'oslo-gold-bg text-black scale-110 shadow-xl' : 'bg-gray-800 text-gray-400 opacity-50'}`}>
-                                            {finderActive ? 'FINDER ATIVO' : 'ATIVAR FINDER'}
-                                        </button>
-                                        {finderActive && (
-                                            <div class="w-full max-w-xs">
-                                                <label class="block text-xs font-bold opacity-40 mb-3 uppercase">Percentual do Parceiro (%)</label>
-                                                <input type="number" value={finderPct} onChange={e=>setFinderPct(e.target.value)} class="input-dark w-full p-4 text-center text-3xl font-black" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                    <div class="bg-[#193D5A] p-10 rounded-3xl border-2 border-[#D4AF37] flex flex-col justify-center text-center shadow-2xl">
+                        <p class="text-xs font-bold uppercase tracking-widest oslo-gold mb-4">Sua Receita Mensal Est.</p>
+                        <div id="pj1-result" class="text-5xl font-black text-white">R$ 23.333,33</div>
+                        <p class="text-[10px] mt-8 opacity-40 uppercase tracking-widest">*Cálculo Líquido: ROA (-) 20% Imposto (-) 50% Oslo Partners.</p>
                     </div>
                 </div>
-            );
+            </section>
+
+            <!-- TAB: PJ2 -->
+            <section id="tab-pj2" class="tab-content hidden space-y-10">
+                <header>
+                    <h2 class="text-4xl font-black mb-2">Ecossistema 12 Verticais</h2>
+                    <p class="oslo-gold text-sm tracking-widest uppercase">Monetização por Deal e Estruturação</p>
+                </header>
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    <!-- Gerado por JS -->
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10">
+                    <div class="glass p-8 rounded-3xl space-y-6">
+                        <div id="input-container">
+                            <label id="input-label" class="block text-xs font-bold opacity-40 mb-2 uppercase">Volume do Deal R$</label>
+                            <input type="number" id="pj2-input" value="1000000" oninput="updatePJ2()" class="input-dark w-full p-6 text-4xl font-black bg-[#08121a] border-[#193D5A] outline-none focus:border-[#D4AF37]">
+                        </div>
+                        <div id="ptax-container" class="hidden">
+                            <label class="block text-xs font-bold opacity-40 mb-2 uppercase">Câmbio do Dia (BRL)</label>
+                            <input type="number" id="pj2-ptax" value="5.20" step="0.01" oninput="updatePJ2()" class="input-dark w-full p-4 text-2xl font-black bg-[#08121a] border-[#193D5A] outline-none focus:border-[#D4AF37]">
+                        </div>
+                        <div class="pt-6 border-t border-blue-900/20 space-y-2 text-xs opacity-60">
+                            <div class="flex justify-between"><span>Repasse Bruto do Ativo</span> <span id="info-brute">0%</span></div>
+                            <div class="flex justify-between"><span>Imposto Oslo</span> <span>20%</span></div>
+                            <div class="flex justify-between"><span>Custo de Mesa Especialista</span> <span id="info-mesa">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-[#D4AF37] p-10 rounded-3xl flex flex-col justify-center text-black shadow-2xl relative overflow-hidden">
+                        <p class="text-xs font-bold uppercase tracking-widest opacity-60 mb-2">Seu Ganho Líquido Estimado</p>
+                        <div id="pj2-result" class="text-6xl font-black leading-tight">R$ 0,00</div>
+                        <div id="finder-alert" class="hidden text-[10px] font-black mt-4 uppercase tracking-tighter">⚠️ Repasse Finder incluído na dedução</div>
+                        <button class="mt-10 bg-black text-white text-xs font-bold p-5 rounded-2xl hover:bg-gray-900 transition uppercase tracking-[3px]">Gerar Relatório PDF</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: FINDER -->
+            <section id="tab-finder" class="tab-content hidden max-w-2xl mx-auto py-20 text-center space-y-8">
+                <div class="glass p-12 rounded-[40px] border-2 border-dashed border-[#D4AF37]/30">
+                    <h2 class="text-3xl font-black mb-4">Gestão de Finder</h2>
+                    <p class="text-sm opacity-50 mb-10">Deduza automaticamente a participação de parceiros de originação externa (finders) da sua participação societária.</p>
+                    <div class="flex flex-col items-center gap-8">
+                        <button id="finder-toggle" onclick="toggleFinder()" class="px-12 py-5 rounded-full text-sm font-black tracking-widest transition-all bg-gray-800 text-gray-400 opacity-50">ATIVAR FINDER</button>
+                        <div id="finder-config" class="hidden w-full max-w-xs">
+                            <label class="block text-xs font-bold opacity-40 mb-3 uppercase">Percentual do Parceiro (%)</label>
+                            <input type="number" id="finder-pct" value="20" oninput="updatePJ2()" class="input-dark w-full p-4 text-center text-3xl font-black bg-[#08121a] border-[#193D5A]">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const rules = {
+            'american_fidelity': { name: 'American Fidelity', type: 'premium', brute: 70, mesa: 35, advisor: 35, escritorio: 30, unit: 'Prêmio US$' },
+            'finep': { name: 'Captação (Finep/BNDES)', type: 'volume', brute: 3, mesa: 10, advisor: 40, escritorio: 50, unit: 'Deal R$' },
+            'm_and_a': { name: 'M&A (Deal)', type: 'deal', brute: 0.8, mesa: 30, advisor: 20, escritorio: 50, unit: 'Deal R$' },
+            'mercado_capitais': { name: 'Mercado de Capitais', type: 'volume', brute: 2, mesa: 30, advisor: 20, escritorio: 50, unit: 'Deal R$' },
+            'home_equity': { name: 'Home Equity', type: 'volume', brute: 3.5, mesa: 20, advisor: 40, escritorio: 40, unit: 'Crédito R$' },
+            'trust': { name: 'Trust Offshore', type: 'premium', brute: 45, mesa: 20, advisor: 40, escritorio: 40, unit: 'Aporte R$' },
+            'special_situations': { name: 'Special Situations', type: 'volume', brute: 15, mesa: 13.3, advisor: 53.3, escritorio: 33.3, unit: 'Volume R$' },
+            'consorcios': { name: 'Consórcios', type: 'volume', brute: 2, mesa: 35, advisor: 35, escritorio: 30, unit: 'Carta R$' },
+            'seguros_nacionais': { name: 'Seguros Nacionais', type: 'premium', brute: 40, mesa: 35, advisor: 35, escritorio: 30, unit: 'Prêmio R$' },
+            'cambio': { name: 'Câmbio (Spread)', type: 'volume', brute: 1, mesa: 10, advisor: 35, escritorio: 55, unit: 'Volume R$' },
+            'financ_imob': { name: 'Financ. Imobiliário', type: 'volume', brute: 1, mesa: 0, advisor: 50, escritorio: 50, unit: 'Financ. R$' },
+            'gestao_patrimonial': { name: 'Gestão Patrimonial', type: 'volume', brute: 1, mesa: 0, advisor: 50, escritorio: 50, unit: 'Operação R$' }
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        let activeId = 'american_fidelity';
+        let finderActive = false;
+
+        const format = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + id).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('oslo-gold-bg', 'text-black');
+                el.classList.add('hover:bg-blue-900/20', 'text-white');
+            });
+            document.getElementById('btn-' + id).classList.add('oslo-gold-bg', 'text-black');
+            document.getElementById('btn-' + id).classList.remove('hover:bg-blue-900/20', 'text-white');
+        }
+
+        function initProducts() {
+            const grid = document.getElementById('product-grid');
+            Object.keys(rules).forEach(id => {
+                const btn = document.createElement('button');
+                btn.innerText = rules[id].name;
+                btn.className = `product-btn p-3 rounded-lg border text-[10px] font-bold transition uppercase tracking-tighter ${activeId===id ? 'active' : 'glass text-white border-blue-900/30'}`;
+                btn.onclick = () => selectProduct(id, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectProduct(id, btn) {
+            activeId = id;
+            document.querySelectorAll('.product-btn').forEach(el => {
+                el.classList.remove('oslo-gold-bg', 'text-black', 'active');
+                el.classList.add('glass', 'text-white');
+            });
+            btn.classList.add('active', 'oslo-gold-bg', 'text-black');
+            document.getElementById('input-label').innerText = rules[id].unit;
+            
+            if (id === 'american_fidelity') {
+                document.getElementById('ptax-container').classList.remove('hidden');
+            } else {
+                document.getElementById('ptax-container').classList.add('hidden');
+            }
+            updatePJ2();
+        }
+
+        function toggleFinder() {
+            finderActive = !finderActive;
+            const btn = document.getElementById('finder-toggle');
+            if (finderActive) {
+                btn.innerText = 'FINDER ATIVO';
+                btn.classList.add('oslo-gold-bg', 'text-black');
+                btn.classList.remove('bg-gray-800', 'text-gray-400', 'opacity-50');
+                document.getElementById('finder-config').classList.remove('hidden');
+                document.getElementById('finder-alert').classList.remove('hidden');
+            } else {
+                btn.innerText = 'ATIVAR FINDER';
+                btn.classList.remove('oslo-gold-bg', 'text-black');
+                btn.classList.add('bg-gray-800', 'text-gray-400', 'opacity-50');
+                document.getElementById('finder-config').classList.add('hidden');
+                document.getElementById('finder-alert').classList.add('hidden');
+            }
+            updatePJ2();
+        }
+
+        function updatePJ1() {
+            const nnm = document.getElementById('pj1-nnm').value;
+            const roa = document.getElementById('pj1-roa').value;
+            const gain = ((nnm * (roa/100)) * 0.8 * 0.5) / 12;
+            document.getElementById('pj1-result').innerText = format(gain);
+        }
+
+        function updatePJ2() {
+            const val = document.getElementById('pj2-input').value;
+            const ptax = document.getElementById('pj2-ptax').value;
+            const fPct = document.getElementById('finder-pct').value;
+            const p = rules[activeId];
+            
+            let gross = (p.type === 'premium' && activeId === 'american_fidelity') ? (val * ptax * (p.brute/100)) : (val * (p.brute/100));
+            const postTax = gross * 0.8;
+            const netOslo = postTax * (1 - p.mesa/100);
+            const advisorBase = netOslo * (p.advisor / (p.advisor + p.escritorio));
+            const finderVal = finderActive ? (advisorBase * (fPct/100)) : 0;
+            
+            document.getElementById('pj2-result').innerText = format(advisorBase - finderVal);
+            document.getElementById('info-brute').innerText = p.brute + '%';
+            document.getElementById('info-mesa').innerText = p.mesa + '%';
+        }
+
+        initProducts();
+        updatePJ1();
+        updatePJ2();
     </script>
 </body>
 </html>
